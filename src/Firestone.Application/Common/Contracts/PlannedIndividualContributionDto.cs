@@ -1,9 +1,9 @@
 ﻿namespace Firestone.Application.Common.Contracts;
 
-using Domain.Models;
+using Domain.Data;
 using Waystone.Common.Application.Contracts.Mappings;
 
-public class PlannedIndividualContributionDto : IMapFrom<PlannedIndividualContributionModel>
+public class PlannedIndividualContributionDto : IMapFrom<PlannedIndividualContributionConfiguration>
 {
     public Guid Id { get; set; }
 

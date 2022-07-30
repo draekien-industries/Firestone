@@ -3,7 +3,6 @@
 using AutoMapper;
 using Common.Contracts;
 using Domain.Data;
-using Domain.Models;
 using MediatR;
 using Repositories;
 
@@ -25,8 +24,7 @@ public class GetTableQuery : IRequest<FireProgressionTableDto>
         /// <inheritdoc />
         public async Task<FireProgressionTableDto> Handle(GetTableQuery request, CancellationToken cancellationToken)
         {
-            FireProgressionTable tableEntity = await _repository.GetAsync(request.Id, cancellationToken);
-            FireProgressionTableModel table = new(tableEntity);
+            FireProgressionTable table = await _repository.GetAsync(request.Id, cancellationToken);
 
             return _mapper.Map<FireProgressionTableDto>(table);
         }

@@ -5,11 +5,9 @@ using Common.Contracts;
 using Common.Data;
 using Contracts;
 using Domain.Data;
-using Domain.Models;
 using FireProgressionTable.Repositories;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 public class AddInitialInvestmentCommand : IRequest<FireProgressionTableEntryDto>
 {
@@ -50,55 +48,21 @@ public class AddInitialInvestmentCommand : IRequest<FireProgressionTableEntryDto
         {
             FireProgressionTable table = await _repository.GetAsync(request.TableId, cancellationToken);
 
-            if (table.RetirementTargetConfiguration == null)
-            {
-                throw new InvalidOperationException("Retirement target configuration is null");
-            }
-
-            if (table.NominalReturnRateConfiguration == null)
-            {
-                throw new InvalidOperationException("Nominal return rate configuration is null");
-            }
-
-            RetirementTargetModel retirementTarget = new(table.RetirementTargetConfiguration);
-            NominalReturnRateModel nominalReturnRate = new(table.NominalReturnRateConfiguration);
-
-            FireProgressionTableEntryModel initialInvestmentEntry = new(
-                request.TableId,
+            FireProgressionTableEntry initialInvestment = new(
+                table,
                 request.DateTime,
-                retirementTarget);
+                table.RetirementTargetConfiguration);
 
-            foreach (IndividualAssetsSnapshotDto snapshot in request.IndividualAssetsSnapshots)
-            {
-                initialInvestmentEntry.AddIndividualAssets(
-                    new IndividualAssetsTotalModel(snapshot.AssetHolderId, snapshot.Value));
-            }
-
-            FireProgressionTableEntry initialInvestmentEntity = initialInvestmentEntry.ToEntity();
-
-            await _context.FireProgressionTableEntries.AddAsync(initialInvestmentEntity, cancellationToken);
+            await _context.FireProgressionTableEntries.AddAsync(initialInvestment, cancellationToken);
             await _context.SaveChangeAsync(cancellationToken);
 
-            Guid initialInvestmentId = initialInvestmentEntity.Id;
+            IEnumerable<IndividualAssetsTotal> initialAssets = request.IndividualAssetsSnapshots.Select(
+                x => new IndividualAssetsTotal(x.AssetHolderId, initialInvestment.Id, x.Value));
 
-            initialInvestmentEntry = new FireProgressionTableEntryModel(initialInvestmentEntity);
-
-            retirementTarget.SetMinimumMonthlyContributionValue(initialInvestmentEntry, nominalReturnRate);
-            retirementTarget.SetMinimumMonthlyGrowthRate(initialInvestmentEntry);
-
-            table.RetirementTargetConfiguration = retirementTarget.ToEntity();
-
-            _context.FireProgressionTables.Update(table);
+            await _context.IndividualAssetsTotals.AddRangeAsync(initialAssets, cancellationToken);
             await _context.SaveChangeAsync(cancellationToken);
 
-            initialInvestmentEntity = await _context.FireProgressionTableEntries
-                                                    .Include(x => x.IndividualAssetValues)
-                                                    .Include(x => x.ProjectedTotalAssetValues)
-                                                    .FirstAsync(x => x.Id == initialInvestmentId, cancellationToken);
-
-            initialInvestmentEntry = new FireProgressionTableEntryModel(initialInvestmentEntity);
-
-            return _mapper.Map<FireProgressionTableEntryDto>(initialInvestmentEntry);
+            return _mapper.Map<FireProgressionTableEntryDto>(initialInvestment);
         }
     }
 }

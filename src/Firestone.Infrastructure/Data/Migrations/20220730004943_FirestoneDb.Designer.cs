@@ -4,6 +4,7 @@ using Firestone.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Firestone.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FirestoneDbContext))]
-    partial class FirestoneDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220730004943_FirestoneDb")]
+    partial class FirestoneDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,8 +126,7 @@ namespace Firestone.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TableId")
-                        .IsUnique();
+                    b.HasIndex("TableId");
 
                     b.ToTable("InflationRates");
                 });
@@ -144,8 +145,7 @@ namespace Firestone.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TableId")
-                        .IsUnique();
+                    b.HasIndex("TableId");
 
                     b.ToTable("NominalReturnRates");
                 });
@@ -212,8 +212,7 @@ namespace Firestone.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TableId")
-                        .IsUnique();
+                    b.HasIndex("TableId");
 
                     b.ToTable("RetirementTargets");
                 });
@@ -236,7 +235,7 @@ namespace Firestone.Infrastructure.Data.Migrations
                         .HasForeignKey("PreviousTableEntryId");
 
                     b.HasOne("Firestone.Domain.Data.FireProgressionTable", "FireProgressionTable")
-                        .WithMany("Entries")
+                        .WithMany("FireProgressionTableEntries")
                         .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -268,8 +267,8 @@ namespace Firestone.Infrastructure.Data.Migrations
             modelBuilder.Entity("Firestone.Domain.Data.InflationRateConfiguration", b =>
                 {
                     b.HasOne("Firestone.Domain.Data.FireProgressionTable", "FireProgressionTable")
-                        .WithOne("InflationRateConfiguration")
-                        .HasForeignKey("Firestone.Domain.Data.InflationRateConfiguration", "TableId")
+                        .WithMany()
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -279,8 +278,8 @@ namespace Firestone.Infrastructure.Data.Migrations
             modelBuilder.Entity("Firestone.Domain.Data.NominalReturnRateConfiguration", b =>
                 {
                     b.HasOne("Firestone.Domain.Data.FireProgressionTable", "FireProgressionTable")
-                        .WithOne("NominalReturnRateConfiguration")
-                        .HasForeignKey("Firestone.Domain.Data.NominalReturnRateConfiguration", "TableId")
+                        .WithMany()
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -312,8 +311,8 @@ namespace Firestone.Infrastructure.Data.Migrations
             modelBuilder.Entity("Firestone.Domain.Data.RetirementTargetConfiguration", b =>
                 {
                     b.HasOne("Firestone.Domain.Data.FireProgressionTable", "FireProgressionTable")
-                        .WithOne("RetirementTargetConfiguration")
-                        .HasForeignKey("Firestone.Domain.Data.RetirementTargetConfiguration", "TableId")
+                        .WithMany()
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -332,16 +331,7 @@ namespace Firestone.Infrastructure.Data.Migrations
                 {
                     b.Navigation("AssetHolders");
 
-                    b.Navigation("Entries");
-
-                    b.Navigation("InflationRateConfiguration")
-                        .IsRequired();
-
-                    b.Navigation("NominalReturnRateConfiguration")
-                        .IsRequired();
-
-                    b.Navigation("RetirementTargetConfiguration")
-                        .IsRequired();
+                    b.Navigation("FireProgressionTableEntries");
                 });
 
             modelBuilder.Entity("Firestone.Domain.Data.FireProgressionTableEntry", b =>

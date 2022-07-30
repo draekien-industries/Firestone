@@ -1,9 +1,9 @@
 ﻿namespace Firestone.Application.Common.Contracts;
 
-using Domain.Models;
+using Domain.Data;
 using Waystone.Common.Application.Contracts.Mappings;
 
-public class IndividualAssetsTotalDto : IMapFrom<IndividualAssetsTotalModel>
+public class IndividualAssetsTotalDto : IMapFrom<IndividualAssetsTotal>
 {
     public Guid Id { get; set; }
 

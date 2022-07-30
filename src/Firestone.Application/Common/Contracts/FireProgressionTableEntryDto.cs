@@ -1,9 +1,9 @@
 ﻿namespace Firestone.Application.Common.Contracts;
 
-using Domain.Models;
+using Domain.Data;
 using Waystone.Common.Application.Contracts.Mappings;
 
-public class FireProgressionTableEntryDto : IMapFrom<FireProgressionTableEntryModel>
+public class FireProgressionTableEntryDto : IMapFrom<FireProgressionTableEntry>
 {
     public Guid Id { get; set; }
 
@@ -13,19 +13,19 @@ public class FireProgressionTableEntryDto : IMapFrom<FireProgressionTableEntryMo
 
     public DateOnly Date { get; set; }
 
-    public double? RetirementTargetValueSnapshot { get; set; }
+    public double? RetirementTargetValue { get; set; }
 
-    public double? CoastTargetValueSnapshot { get; set; }
+    public double? CoastTargetValue { get; set; }
 
-    public double? MinimumGrowthTargetValueSnapshot { get; set; }
+    public double? MinimumGrowthTargetValue { get; set; }
 
     public double? TotalAssetValues { get; set; }
 
     public double? ChangeInTotalAssetValues { get; set; }
 
-    public IEnumerable<IndividualAssetsTotalDto> IndividualAssetsTotals { get; set; } =
+    public IEnumerable<IndividualAssetsTotalDto> IndividualAssetValues { get; set; } =
         new List<IndividualAssetsTotalDto>();
 
-    public IEnumerable<ProjectedAssetsTotalDto> ProjectedAssetsTotals { get; set; } =
+    public IEnumerable<ProjectedAssetsTotalDto> ProjectedTotalAssetValues { get; set; } =
         new List<ProjectedAssetsTotalDto>();
 }

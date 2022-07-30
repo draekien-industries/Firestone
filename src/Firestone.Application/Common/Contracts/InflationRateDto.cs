@@ -1,9 +1,9 @@
 ﻿namespace Firestone.Application.Common.Contracts;
 
-using Domain.Models;
+using Domain.Data;
 using Waystone.Common.Application.Contracts.Mappings;
 
-public class InflationRateDto : IMapFrom<InflationRateModel>
+public class InflationRateDto : IMapFrom<InflationRateConfiguration>
 {
     public Guid Id { get; set; }
 

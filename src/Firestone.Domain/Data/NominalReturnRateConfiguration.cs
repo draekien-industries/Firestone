@@ -4,8 +4,17 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Constants;
 
-public class NominalReturnRateConfiguration : EntityBase
+public class NominalReturnRateConfiguration : Entity
 {
+    private NominalReturnRateConfiguration()
+    { }
+
+    public NominalReturnRateConfiguration(Guid tableId, double yearlyReturnRate)
+    {
+        TableId = tableId;
+        YearlyReturnRate = yearlyReturnRate;
+    }
+
     [Description("The yearly return on investment rate (in decimals) used to calculate projected asset values.")]
     public double YearlyReturnRate { get; set; }
 

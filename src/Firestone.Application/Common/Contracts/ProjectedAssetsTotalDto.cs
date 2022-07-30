@@ -1,10 +1,10 @@
 ﻿namespace Firestone.Application.Common.Contracts;
 
+using Domain.Data;
 using Domain.Enumerations;
-using Domain.Models;
 using Waystone.Common.Application.Contracts.Mappings;
 
-public class ProjectedAssetsTotalDto : IMapFrom<ProjectedAssetsTotalModel>
+public class ProjectedAssetsTotalDto : IMapFrom<ProjectedAssetsTotal>
 {
     public Guid Id { get; set; }
 

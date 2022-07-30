@@ -4,7 +4,6 @@ using AutoMapper;
 using Common.Contracts;
 using Common.Data;
 using Domain.Data;
-using Domain.Models;
 using FluentValidation;
 using MediatR;
 using Repositories;
@@ -39,42 +38,42 @@ public class PopulateTableCommand : IRequest<FireProgressionTableDto>
             PopulateTableCommand request,
             CancellationToken cancellationToken)
         {
-            FireProgressionTable entity = await _repository.GetAsync(request.TableId, cancellationToken);
+            FireProgressionTable table = await _repository.GetAsync(request.TableId, cancellationToken);
 
-            FireProgressionTableModel table = new(entity);
-
-            table.EnsureTableCanBePopulated();
-
-            RetirementTargetModel retirementTarget = table.RetirementTarget!;
-            InflationRateModel inflationRate = table.InflationRate!;
-            NominalReturnRateModel nominalReturnRate = table.NominalReturnRate!;
-            FireProgressionTableEntryModel previous = table.Entries.First();
-
-            List<FireProgressionTableEntryModel> newEntries = new();
-
-            for (var i = 1; i < retirementTarget.MonthsUntilRetirement; i++)
-            {
-                DateTime date = previous.DateTime.AddMonths(1);
-
-                FireProgressionTableEntryModel newEntry = new(
-                    entity.Id,
-                    date,
-                    retirementTarget,
-                    inflationRate,
-                    nominalReturnRate,
-                    previous);
-
-                newEntries.Add(newEntry);
-            }
-
-            List<FireProgressionTableEntry> newEntities = newEntries.Select(x => x.ToEntity()).ToList();
-
-            await _context.FireProgressionTableEntries.AddRangeAsync(newEntities, cancellationToken);
-            await _context.SaveChangeAsync(cancellationToken);
-
-            entity = await _repository.GetAsync(request.TableId, cancellationToken);
-
-            table = new FireProgressionTableModel(entity);
+            // FireProgressionTableModel table = new(entity);
+            //
+            // table.EnsureTableCanBePopulated();
+            //
+            // RetirementTargetModel retirementTarget = table.RetirementTarget!;
+            // InflationRateModel inflationRate = table.InflationRate!;
+            // NominalReturnRateModel nominalReturnRate = table.NominalReturnRate!;
+            // FireProgressionTableEntryModel previous = table.Entries.First();
+            //
+            // List<FireProgressionTableEntryModel> newEntries = new();
+            //
+            // for (var i = 1; i < retirementTarget.MonthsUntilRetirement; i++)
+            // {
+            //     DateTime date = previous.DateTime.AddMonths(1);
+            //
+            //     FireProgressionTableEntryModel newEntry = new(
+            //         entity.Id,
+            //         date,
+            //         retirementTarget,
+            //         inflationRate,
+            //         nominalReturnRate,
+            //         previous);
+            //
+            //     newEntries.Add(newEntry);
+            // }
+            //
+            // List<FireProgressionTableEntry> newEntities = newEntries.Select(x => x.ToEntity()).ToList();
+            //
+            // await _context.FireProgressionTableEntries.AddRangeAsync(newEntities, cancellationToken);
+            // await _context.SaveChangeAsync(cancellationToken);
+            //
+            // entity = await _repository.GetAsync(request.TableId, cancellationToken);
+            //
+            // table = new FireProgressionTableModel(entity);
 
             return _mapper.Map<FireProgressionTableDto>(table);
         }

@@ -4,8 +4,18 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 [Description("An asset holder's total asset value on the date of the table entry.")]
-public class IndividualAssetsTotal : EntityBase
+public class IndividualAssetsTotal : Entity
 {
+    private IndividualAssetsTotal()
+    { }
+
+    public IndividualAssetsTotal(Guid assetHolderId, Guid tableEntryId, double value)
+    {
+        AssetHolderId = assetHolderId;
+        TableEntryId = tableEntryId;
+        Value = value;
+    }
+
     [ForeignKey(nameof(AssetHolder))]
     [Description("The asset holder for which the asset value is recorded.")]
     public Guid AssetHolderId { get; set; }

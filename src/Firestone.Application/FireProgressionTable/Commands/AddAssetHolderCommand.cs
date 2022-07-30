@@ -5,7 +5,6 @@ using Common.Contracts;
 using Common.Data;
 using Contracts;
 using Domain.Data;
-using Domain.Models;
 using FluentValidation;
 using MediatR;
 using Repositories;
@@ -47,19 +46,16 @@ public class AddAssetHolderCommand : IRequest<FireProgressionTableDto>
         {
             NewAssetHolderDto assetHolderDetails = request.NewAssetHolder;
 
-            AssetHolderModel assetHolder = new(
+            AssetHolder assetHolder = new(
                 request.TableId,
                 assetHolderDetails.Name,
                 assetHolderDetails.MonthlyIncome,
                 assetHolderDetails.PlannedMonthlyContribution);
 
-            AssetHolder entity = assetHolder.ToEntity();
-
-            await _context.AssetHolders.AddAsync(entity, cancellationToken);
+            await _context.AssetHolders.AddAsync(assetHolder, cancellationToken);
             await _context.SaveChangeAsync(cancellationToken);
 
-            FireProgressionTable tableEntity = await _repository.GetAsync(entity.TableId, cancellationToken);
-            FireProgressionTableModel table = new(tableEntity);
+            FireProgressionTable table = await _repository.GetAsync(assetHolder.TableId, cancellationToken);
 
             return _mapper.Map<FireProgressionTableDto>(table);
         }

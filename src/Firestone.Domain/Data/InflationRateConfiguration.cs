@@ -4,8 +4,17 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Constants;
 
-public class InflationRateConfiguration : EntityBase
+public class InflationRateConfiguration : Entity
 {
+    private InflationRateConfiguration()
+    { }
+
+    public InflationRateConfiguration(Guid tableId, double yearlyRate)
+    {
+        TableId = tableId;
+        YearlyRate = yearlyRate;
+    }
+
     [Description("The yearly inflation rate in decimal format.")]
     public double YearlyRate { get; set; }
 

@@ -39,7 +39,7 @@ public class FirestoneDbContext : DbContext, IFirestoneDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FireProgressionTable>()
-                    .HasMany(table => table.FireProgressionTableEntries)
+                    .HasMany(table => table.Entries)
                     .WithOne(entry => entry.FireProgressionTable)
                     .OnDelete(DeleteBehavior.NoAction);
 

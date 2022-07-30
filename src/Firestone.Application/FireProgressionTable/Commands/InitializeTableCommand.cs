@@ -4,7 +4,6 @@ using AutoMapper;
 using Common.Contracts;
 using Common.Data;
 using Domain.Data;
-using Domain.Models;
 using MediatR;
 using Repositories;
 
@@ -36,42 +35,14 @@ public class InitializeTableCommand : IRequest<FireProgressionTableDto>
             InitializeTableCommand request,
             CancellationToken cancellationToken)
         {
-            FireProgressionTableModel table = new();
-
-            FireProgressionTable entity = await _repository.AddAsync(table, cancellationToken);
-
-            Guid tableId = entity.Id;
-
-            InflationRateModel inflationRate = new(tableId, request.YearlyInflationRate);
-            InflationRateConfiguration inflationRateEntity = inflationRate.ToEntity();
-            await _context.InflationRates.AddAsync(inflationRateEntity, cancellationToken);
-
-            NominalReturnRateModel nominalReturnRate = new(tableId, request.YearlyNominalReturnRate);
-            NominalReturnRateConfiguration nominalReturnRateEntity = nominalReturnRate.ToEntity();
-            await _context.NominalReturnRates.AddAsync(nominalReturnRateEntity, cancellationToken);
-
-            RetirementTargetModel retirementTarget = new(
-                tableId,
+            FireProgressionTable table = new(
+                request.YearlyInflationRate,
+                request.YearlyNominalReturnRate,
                 request.YearsUntilRetirement,
-                request.RetirementTarget,
-                inflationRate,
-                nominalReturnRate);
+                request.RetirementTarget);
 
-            RetirementTargetConfiguration retirementTargetEntity = retirementTarget.ToEntity();
-            await _context.RetirementTargets.AddAsync(retirementTargetEntity, cancellationToken);
-
+            await _context.FireProgressionTables.AddAsync(table, cancellationToken);
             await _context.SaveChangeAsync(cancellationToken);
-
-            entity.InflationRateConfiguration = inflationRateEntity;
-            entity.NominalReturnRateConfiguration = nominalReturnRateEntity;
-            entity.RetirementTargetConfiguration = retirementTargetEntity;
-
-            _context.FireProgressionTables.Update(entity);
-            await _context.SaveChangeAsync(cancellationToken);
-
-            entity = await _repository.GetAsync(entity.Id, cancellationToken);
-
-            table = new FireProgressionTableModel(entity);
 
             return _mapper.Map<FireProgressionTableDto>(table);
         }
