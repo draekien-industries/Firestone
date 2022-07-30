@@ -1,17 +1,13 @@
-﻿namespace Firestone.Application.FireProgressionTable.Repositories;
+﻿namespace Firestone.Infrastructure.Repositories;
 
-using Common.Data;
+using Application.Common.Repositories;
+using Application.FireProgressionTable.Commands;
+using Data;
 using Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Waystone.Common.Domain.Contracts.Exceptions;
 
-public interface IFireProgressionTableRepository
-{
-    Task<FireProgressionTable> GetAsync(Guid id, CancellationToken cancellationToken);
-}
-
-public class FireProgressionTableRepository
-    : IFireProgressionTableRepository
+public class FireProgressionTableRepository : IFireProgressionTableRepository
 {
     private readonly IFirestoneDbContext _context;
 
@@ -20,6 +16,7 @@ public class FireProgressionTableRepository
         _context = context;
     }
 
+    /// <inheritdoc />
     public async Task<FireProgressionTable> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         FireProgressionTable? result =
@@ -38,5 +35,22 @@ public class FireProgressionTableRepository
         if (result is null) throw new NotFoundException(typeof(FireProgressionTable), id.ToString());
 
         return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<FireProgressionTable> AddAsync(
+        InitializeTableCommand command,
+        CancellationToken cancellationToken)
+    {
+        FireProgressionTable table = new(
+            command.YearlyInflationRate,
+            command.YearlyNominalReturnRate,
+            command.YearsUntilRetirement,
+            command.RetirementTarget);
+
+        await _context.FireProgressionTables.AddAsync(table, cancellationToken);
+        await _context.SaveChangeAsync(cancellationToken);
+
+        return table;
     }
 }

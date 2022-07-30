@@ -2,14 +2,13 @@
 
 using AutoMapper;
 using Common.Contracts;
-using Common.Data;
+using Common.Repositories;
 using Contracts;
 using Domain.Data;
 using FluentValidation;
 using MediatR;
-using Repositories;
 
-public class AddAssetHolderCommand : IRequest<FireProgressionTableDto>
+public class AddAssetHolderCommand : IRequest<AssetHolderDto>
 {
     public Guid TableId { get; init; }
 
@@ -26,38 +25,28 @@ public class AddAssetHolderCommand : IRequest<FireProgressionTableDto>
         }
     }
 
-    public class Handler : IRequestHandler<AddAssetHolderCommand, FireProgressionTableDto>
+    public class Handler : IRequestHandler<AddAssetHolderCommand, AssetHolderDto>
     {
-        private readonly IFirestoneDbContext _context;
+        private readonly IAssetHolderRepository _assetHolderRepository;
         private readonly IMapper _mapper;
-        private readonly IFireProgressionTableRepository _repository;
 
-        public Handler(IFirestoneDbContext context, IMapper mapper, IFireProgressionTableRepository repository)
+        public Handler(IMapper mapper, IAssetHolderRepository assetHolderRepository)
         {
-            _context = context;
             _mapper = mapper;
-            _repository = repository;
+            _assetHolderRepository = assetHolderRepository;
         }
 
         /// <inheritdoc />
-        public async Task<FireProgressionTableDto> Handle(
+        public async Task<AssetHolderDto> Handle(
             AddAssetHolderCommand request,
             CancellationToken cancellationToken)
         {
-            NewAssetHolderDto assetHolderDetails = request.NewAssetHolder;
-
-            AssetHolder assetHolder = new(
+            AssetHolder result = await _assetHolderRepository.AddAsync(
                 request.TableId,
-                assetHolderDetails.Name,
-                assetHolderDetails.MonthlyIncome,
-                assetHolderDetails.PlannedMonthlyContribution);
+                request.NewAssetHolder,
+                cancellationToken);
 
-            await _context.AssetHolders.AddAsync(assetHolder, cancellationToken);
-            await _context.SaveChangeAsync(cancellationToken);
-
-            FireProgressionTable table = await _repository.GetAsync(assetHolder.TableId, cancellationToken);
-
-            return _mapper.Map<FireProgressionTableDto>(table);
+            return _mapper.Map<AssetHolderDto>(result);
         }
     }
 }

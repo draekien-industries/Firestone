@@ -14,16 +14,14 @@ public class FireProgressionTableEntry : Entity
     /// </summary>
     /// <param name="table"></param>
     /// <param name="entryDateTime"></param>
-    /// <param name="retirementTargetConfiguration"></param>
     /// <exception cref="InvalidOperationException"></exception>
     public FireProgressionTableEntry(
         FireProgressionTable table,
-        DateTime entryDateTime,
-        RetirementTargetConfiguration retirementTargetConfiguration)
+        DateTime entryDateTime)
     {
         TableId = table.Id;
         DateTime = entryDateTime;
-        RetirementTargetValue = retirementTargetConfiguration.TargetValue;
+        RetirementTargetValue = table.RetirementTargetConfiguration.TargetValue;
         CoastTargetValue = table.InitialCoastTarget
                         ?? throw new InvalidOperationException("Initial coast target was not available from the table");
     }

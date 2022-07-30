@@ -2,10 +2,9 @@
 
 using AutoMapper;
 using Common.Contracts;
-using Common.Data;
+using Common.Repositories;
 using Contracts;
 using Domain.Data;
-using FireProgressionTable.Repositories;
 using FluentValidation;
 using MediatR;
 
@@ -30,15 +29,21 @@ public class AddInitialInvestmentCommand : IRequest<FireProgressionTableEntryDto
 
     public class Handler : IRequestHandler<AddInitialInvestmentCommand, FireProgressionTableEntryDto>
     {
-        private readonly IFirestoneDbContext _context;
+        private readonly IIndividualAssetTotalsRepository _assetsRepository;
         private readonly IMapper _mapper;
         private readonly IFireProgressionTableRepository _repository;
+        private readonly IFireProgressionTableEntryRepository _tableEntryRepository;
 
-        public Handler(IFirestoneDbContext context, IMapper mapper, IFireProgressionTableRepository repository)
+        public Handler(
+            IMapper mapper,
+            IFireProgressionTableRepository repository,
+            IFireProgressionTableEntryRepository tableEntryRepository,
+            IIndividualAssetTotalsRepository assetsRepository)
         {
-            _context = context;
             _mapper = mapper;
             _repository = repository;
+            _tableEntryRepository = tableEntryRepository;
+            _assetsRepository = assetsRepository;
         }
 
         /// <inheritdoc />
@@ -48,19 +53,13 @@ public class AddInitialInvestmentCommand : IRequest<FireProgressionTableEntryDto
         {
             FireProgressionTable table = await _repository.GetAsync(request.TableId, cancellationToken);
 
-            FireProgressionTableEntry initialInvestment = new(
-                table,
-                request.DateTime,
-                table.RetirementTargetConfiguration);
+            FireProgressionTableEntry initialInvestment =
+                await _tableEntryRepository.AddInitialInvestmentAsync(table, request, cancellationToken);
 
-            await _context.FireProgressionTableEntries.AddAsync(initialInvestment, cancellationToken);
-            await _context.SaveChangeAsync(cancellationToken);
-
-            IEnumerable<IndividualAssetsTotal> initialAssets = request.IndividualAssetsSnapshots.Select(
-                x => new IndividualAssetsTotal(x.AssetHolderId, initialInvestment.Id, x.Value));
-
-            await _context.IndividualAssetsTotals.AddRangeAsync(initialAssets, cancellationToken);
-            await _context.SaveChangeAsync(cancellationToken);
+            await _assetsRepository.AddAsync(
+                initialInvestment.Id,
+                request.IndividualAssetsSnapshots,
+                cancellationToken);
 
             return _mapper.Map<FireProgressionTableEntryDto>(initialInvestment);
         }

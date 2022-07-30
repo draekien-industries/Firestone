@@ -1,6 +1,5 @@
 ﻿namespace Firestone.Infrastructure.Data;
 
-using Application.Common.Data;
 using Domain.Data;
 using Microsoft.EntityFrameworkCore;
 

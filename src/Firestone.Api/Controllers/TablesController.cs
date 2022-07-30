@@ -40,7 +40,7 @@ public class TablesController : WaystoneApiController
             NewAssetHolder = assetHolder,
         };
 
-        FireProgressionTableDto response = await Mediator.Send(request, cancellationToken);
+        AssetHolderDto response = await Mediator.Send(request, cancellationToken);
 
         return Ok(response);
     }

@@ -2,9 +2,9 @@
 
 using AutoMapper;
 using Common.Contracts;
+using Common.Repositories;
 using Domain.Data;
 using MediatR;
-using Repositories;
 
 public class GetTableQuery : IRequest<FireProgressionTableDto>
 {

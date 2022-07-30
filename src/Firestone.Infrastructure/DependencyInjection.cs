@@ -3,6 +3,7 @@
 using Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Repositories;
 
 public static class DependencyInjection
 {
@@ -12,6 +13,7 @@ public static class DependencyInjection
                 .AcceptDefaults();
 
         services.AddDataAccess(configuration);
+        services.AddRepositories();
 
         return services;
     }

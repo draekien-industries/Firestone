@@ -2,11 +2,10 @@
 
 using AutoMapper;
 using Common.Contracts;
-using Common.Data;
+using Common.Repositories;
 using Domain.Data;
 using FluentValidation;
 using MediatR;
-using Repositories;
 
 public class PopulateTableCommand : IRequest<FireProgressionTableDto>
 {
@@ -22,13 +21,11 @@ public class PopulateTableCommand : IRequest<FireProgressionTableDto>
 
     public class Handler : IRequestHandler<PopulateTableCommand, FireProgressionTableDto>
     {
-        private readonly IFirestoneDbContext _context;
         private readonly IMapper _mapper;
         private readonly IFireProgressionTableRepository _repository;
 
-        public Handler(IFirestoneDbContext context, IFireProgressionTableRepository repository, IMapper mapper)
+        public Handler(IFireProgressionTableRepository repository, IMapper mapper)
         {
-            _context = context;
             _repository = repository;
             _mapper = mapper;
         }

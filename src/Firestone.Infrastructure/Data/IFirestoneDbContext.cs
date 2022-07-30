@@ -1,4 +1,4 @@
-﻿namespace Firestone.Application.Common.Data;
+﻿namespace Firestone.Infrastructure.Data;
 
 using Domain.Data;
 using Microsoft.EntityFrameworkCore;

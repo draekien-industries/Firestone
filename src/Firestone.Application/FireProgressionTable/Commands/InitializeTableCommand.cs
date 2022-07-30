@@ -2,10 +2,9 @@
 
 using AutoMapper;
 using Common.Contracts;
-using Common.Data;
+using Common.Repositories;
 using Domain.Data;
 using MediatR;
-using Repositories;
 
 public class InitializeTableCommand : IRequest<FireProgressionTableDto>
 {
@@ -19,13 +18,11 @@ public class InitializeTableCommand : IRequest<FireProgressionTableDto>
 
     public class Handler : IRequestHandler<InitializeTableCommand, FireProgressionTableDto>
     {
-        private readonly IFirestoneDbContext _context;
         private readonly IMapper _mapper;
         private readonly IFireProgressionTableRepository _repository;
 
-        public Handler(IFirestoneDbContext context, IMapper mapper, IFireProgressionTableRepository repository)
+        public Handler(IMapper mapper, IFireProgressionTableRepository repository)
         {
-            _context = context;
             _mapper = mapper;
             _repository = repository;
         }
@@ -35,14 +32,7 @@ public class InitializeTableCommand : IRequest<FireProgressionTableDto>
             InitializeTableCommand request,
             CancellationToken cancellationToken)
         {
-            FireProgressionTable table = new(
-                request.YearlyInflationRate,
-                request.YearlyNominalReturnRate,
-                request.YearsUntilRetirement,
-                request.RetirementTarget);
-
-            await _context.FireProgressionTables.AddAsync(table, cancellationToken);
-            await _context.SaveChangeAsync(cancellationToken);
+            FireProgressionTable table = await _repository.AddAsync(request, cancellationToken);
 
             return _mapper.Map<FireProgressionTableDto>(table);
         }
