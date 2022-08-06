@@ -4,14 +4,15 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Firestone.Domain\Firestone.Domain.csproj" />
+        <ProjectReference Include="..\Firestone.Domain\Firestone.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Waystone.Common.Application" Version="2.0.1" />
+        <PackageReference Include="Waystone.Common.Application" Version="2.0.1" />
     </ItemGroup>
 
 </Project>

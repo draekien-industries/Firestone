@@ -6,11 +6,11 @@ using Common.Repositories;
 using Domain.Data;
 using MediatR;
 
-public class GetTableQuery : IRequest<FireProgressionTableDto>
+public class GetTableByIdQuery : IRequest<FireProgressionTableDto>
 {
     public Guid Id { get; init; }
 
-    public class Handler : IRequestHandler<GetTableQuery, FireProgressionTableDto>
+    public class Handler : IRequestHandler<GetTableByIdQuery, FireProgressionTableDto>
     {
         private readonly IMapper _mapper;
         private readonly IFireProgressionTableRepository _repository;
@@ -22,7 +22,9 @@ public class GetTableQuery : IRequest<FireProgressionTableDto>
         }
 
         /// <inheritdoc />
-        public async Task<FireProgressionTableDto> Handle(GetTableQuery request, CancellationToken cancellationToken)
+        public async Task<FireProgressionTableDto> Handle(
+            GetTableByIdQuery request,
+            CancellationToken cancellationToken)
         {
             FireProgressionTable table = await _repository.GetAsync(request.Id, cancellationToken);
 

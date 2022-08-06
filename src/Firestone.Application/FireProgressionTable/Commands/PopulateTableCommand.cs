@@ -1,13 +1,12 @@
 ﻿namespace Firestone.Application.FireProgressionTable.Commands;
 
 using AutoMapper;
-using Common.Contracts;
 using Common.Repositories;
 using Domain.Data;
 using FluentValidation;
 using MediatR;
 
-public class PopulateTableCommand : IRequest<FireProgressionTableDto>
+public class PopulateTableCommand : IRequest
 {
     public Guid TableId { get; init; }
 
@@ -19,7 +18,7 @@ public class PopulateTableCommand : IRequest<FireProgressionTableDto>
         }
     }
 
-    public class Handler : IRequestHandler<PopulateTableCommand, FireProgressionTableDto>
+    public class Handler : IRequestHandler<PopulateTableCommand>
     {
         private readonly IMapper _mapper;
         private readonly IFireProgressionTableRepository _repository;
@@ -31,48 +30,37 @@ public class PopulateTableCommand : IRequest<FireProgressionTableDto>
         }
 
         /// <inheritdoc />
-        public async Task<FireProgressionTableDto> Handle(
+        public async Task<Unit> Handle(
             PopulateTableCommand request,
             CancellationToken cancellationToken)
         {
             FireProgressionTable table = await _repository.GetAsync(request.TableId, cancellationToken);
+            List<FireProgressionTableEntry> tableEntries = table.Entries.ToList();
 
-            // FireProgressionTableModel table = new(entity);
-            //
-            // table.EnsureTableCanBePopulated();
-            //
-            // RetirementTargetModel retirementTarget = table.RetirementTarget!;
-            // InflationRateModel inflationRate = table.InflationRate!;
-            // NominalReturnRateModel nominalReturnRate = table.NominalReturnRate!;
-            // FireProgressionTableEntryModel previous = table.Entries.First();
-            //
-            // List<FireProgressionTableEntryModel> newEntries = new();
-            //
-            // for (var i = 1; i < retirementTarget.MonthsUntilRetirement; i++)
-            // {
-            //     DateTime date = previous.DateTime.AddMonths(1);
-            //
-            //     FireProgressionTableEntryModel newEntry = new(
-            //         entity.Id,
-            //         date,
-            //         retirementTarget,
-            //         inflationRate,
-            //         nominalReturnRate,
-            //         previous);
-            //
-            //     newEntries.Add(newEntry);
-            // }
-            //
-            // List<FireProgressionTableEntry> newEntities = newEntries.Select(x => x.ToEntity()).ToList();
-            //
-            // await _context.FireProgressionTableEntries.AddRangeAsync(newEntities, cancellationToken);
-            // await _context.SaveChangeAsync(cancellationToken);
-            //
-            // entity = await _repository.GetAsync(request.TableId, cancellationToken);
-            //
-            // table = new FireProgressionTableModel(entity);
+            FireProgressionTableEntry previous = tableEntries.First(x => x.TotalAssetValues.HasValue);
+            int initialMonth = tableEntries.IndexOf(previous) + 1;
 
-            return _mapper.Map<FireProgressionTableDto>(table);
+            List<FireProgressionTableEntry> projections = new();
+
+            for (int elapsedMonths = initialMonth;
+                 elapsedMonths < table.RetirementTargetConfiguration.MonthsUntilRetirement;
+                 elapsedMonths++)
+            {
+                DateTime date = previous.DateTime.AddMonths(1);
+
+                FireProgressionTableEntry projection = new(
+                    table,
+                    date,
+                    table.InflationRateConfiguration,
+                    table.NominalReturnRateConfiguration,
+                    previous);
+
+                projections.Add(projection);
+            }
+
+            await _repository.UpdateProjectionsAsync(projections, cancellationToken);
+
+            return default;
         }
     }
 }

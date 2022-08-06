@@ -2,6 +2,7 @@
 
 using Application.Common.Repositories;
 using Application.FireProgressionTable.Commands;
+using Application.FireProgressionTable.Queries;
 using Data;
 using Domain.Data;
 using Microsoft.EntityFrameworkCore;
@@ -30,11 +31,26 @@ public class FireProgressionTableRepository : IFireProgressionTableRepository
                           .ThenInclude(x => x.IndividualAssetValues)
                           .Include(x => x.Entries)
                           .ThenInclude(x => x.ProjectedTotalAssetValues)
+                          .AsSplitQuery()
                           .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (result is null) throw new NotFoundException(typeof(FireProgressionTable), id.ToString());
 
         return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<FireProgressionTable>> ListAsync(
+        GetTablesQuery query,
+        CancellationToken cancellationToken)
+    {
+        List<FireProgressionTable> results = await _context.FireProgressionTables
+                                                           .Include(table => table.AssetHolders)
+                                                           .Skip(query.Cursor)
+                                                           .Take(query.Limit)
+                                                           .ToListAsync(cancellationToken);
+
+        return results;
     }
 
     /// <inheritdoc />
@@ -52,5 +68,20 @@ public class FireProgressionTableRepository : IFireProgressionTableRepository
         await _context.SaveChangeAsync(cancellationToken);
 
         return table;
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateProjectionsAsync(
+        IEnumerable<FireProgressionTableEntry> projections,
+        CancellationToken cancellationToken)
+    {
+        await _context.FireProgressionTableEntries.AddRangeAsync(projections, cancellationToken);
+        await _context.SaveChangeAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountAsync(CancellationToken cancellationToken)
+    {
+        return _context.FireProgressionTables.CountAsync(cancellationToken);
     }
 }
