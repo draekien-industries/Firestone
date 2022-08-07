@@ -1,46 +1,26 @@
 ﻿namespace Firestone.Infrastructure.Data;
 
-using Domain.Data;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class FirestoneDbContext : DbContext, IFirestoneDbContext
+public class FirestoneDbContext : DbContext
 {
     public FirestoneDbContext(DbContextOptions<FirestoneDbContext> options) : base(options)
     { }
 
+    public DbSet<FireTable> FireTables => Set<FireTable>();
+
     public DbSet<AssetHolder> AssetHolders => Set<AssetHolder>();
 
-    public DbSet<IndividualAssetsTotal> IndividualAssetsTotals => Set<IndividualAssetsTotal>();
+    public DbSet<Assets> Assets => Set<Assets>();
 
-    public DbSet<InflationRateConfiguration> InflationRates => Set<InflationRateConfiguration>();
+    public DbSet<LineItem> LineItems => Set<LineItem>();
 
-    public DbSet<NominalReturnRateConfiguration> NominalReturnRates =>
-        Set<NominalReturnRateConfiguration>();
-
-    public DbSet<PlannedIndividualContributionConfiguration> PlannedIndividualContributions =>
-        Set<PlannedIndividualContributionConfiguration>();
-
-    public DbSet<ProjectedAssetsTotal> ProjectedAssetsTotals => Set<ProjectedAssetsTotal>();
-
-    public DbSet<RetirementTargetConfiguration> RetirementTargets => Set<RetirementTargetConfiguration>();
-
-    public DbSet<FireProgressionTable> FireProgressionTables => Set<FireProgressionTable>();
-
-    public DbSet<FireProgressionTableEntry> FireProgressionTableEntries => Set<FireProgressionTableEntry>();
-
-    /// <inheritdoc />
-    public Task<int> SaveChangeAsync(CancellationToken cancellationToken = default)
-    {
-        return base.SaveChangesAsync(cancellationToken);
-    }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<FireProgressionTable>()
-                    .HasMany(table => table.Entries)
-                    .WithOne(entry => entry.FireProgressionTable)
-                    .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(FirestoneDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }

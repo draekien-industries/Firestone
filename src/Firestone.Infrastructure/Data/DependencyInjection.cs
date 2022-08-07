@@ -16,7 +16,7 @@ public static class DependencyInjection
             throw new InvalidOperationException("Firestone connection string is not configured");
         }
 
-        services.AddDbContext<IFirestoneDbContext, FirestoneDbContext>(
+        services.AddDbContext<FirestoneDbContext>(
             options =>
             {
                 void SetMigrationAssembly(SqlServerDbContextOptionsBuilder builder)
