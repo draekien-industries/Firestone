@@ -6,4 +6,14 @@ public static class MathUtils
     {
         return value * (1 + percentInDecimals);
     }
+
+    public static double CompoundInterest(
+        double principle,
+        double interestRate,
+        int numberOfTimesCompounded,
+        int numberOfTimesToCompound)
+    {
+        return principle
+             * Math.Pow(1 + interestRate / numberOfTimesCompounded, numberOfTimesToCompound * numberOfTimesCompounded);
+    }
 }

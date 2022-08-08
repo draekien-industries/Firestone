@@ -1,7 +1,6 @@
 ﻿namespace Firestone.Application.FireTable.Contracts;
 
 using AssetHolder.Contracts;
-using Domain.Constants;
 using Domain.Models;
 using LineItem.Contracts;
 using Waystone.Common.Application.Contracts.Mappings;
@@ -25,7 +24,7 @@ public class FireTableDto : IMapFrom<FireTable>
     /// <summary>
     /// The monthly inflation rate. Used to calculate various projections.
     /// </summary>
-    public double MonthlyInflationRate => YearlyInflationRate / FirestoneValues.MonthsPerYear;
+    public double MonthlyInflationRate { get; set; }
 
     /// <summary>
     /// The yearly nominal return rate. Used to calculate various projections.
@@ -36,7 +35,7 @@ public class FireTableDto : IMapFrom<FireTable>
     /// <summary>
     /// The monthly nominal return rate.
     /// </summary>
-    public double MonthlyNominalReturnRate => YearlyNominalReturnRate / FirestoneValues.MonthsPerYear;
+    public double MonthlyNominalReturnRate { get; set; }
 
     /// <summary>
     /// The assets value that you want to achieve when you reach retirement.
@@ -51,7 +50,7 @@ public class FireTableDto : IMapFrom<FireTable>
     /// <summary>
     /// The number of months until retirement.
     /// </summary>
-    public int MonthsToRetirement => YearsToRetirement * FirestoneValues.MonthsPerYear;
+    public int MonthsToRetirement { get; set; }
 
     /// <summary>
     /// The table's line items.

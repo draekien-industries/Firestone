@@ -10,6 +10,8 @@ public class LineItem : DbEntity
 
     public ICollection<Assets> Assets { get; set; } = new List<Assets>();
 
+    public double AssetsTotal => Assets.Sum(assets => assets.Amount);
+
     public static LineItem Initialise(
         Guid fireTableId,
         DateTime date)

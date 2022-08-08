@@ -10,9 +10,9 @@ public class LineItemDto : IMapFrom<LineItem>
 
     public Guid FireTableId { get; set; }
 
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     public IEnumerable<AssetsDto> Assets { get; set; } = Array.Empty<AssetsDto>();
 
-    public double TotalAssets => Assets.Sum(asset => asset.Amount);
+    public double AssetsTotal { get; set; }
 }
