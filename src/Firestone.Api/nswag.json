@@ -121,7 +121,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../Firestone.App/apiClients/firestone.apiClient.ts",
+      "output": "../Firestone.App/apiClients/firestone.generated.ts",
       "newLineBehavior": "Auto"
     }
   }

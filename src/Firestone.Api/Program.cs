@@ -36,6 +36,14 @@ try
         app.UseOpenApi();
         app.UseSwaggerUi3();
         app.UseReDoc(options => options.Path = "/docs");
+
+        app.UseCors(
+            options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+            });
     }
 
     app.UseWaystoneApiApplicationBuilder()
