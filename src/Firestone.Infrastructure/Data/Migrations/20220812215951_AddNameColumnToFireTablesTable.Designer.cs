@@ -4,6 +4,7 @@ using Firestone.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Firestone.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FirestoneDbContext))]
-    partial class FirestoneDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220812215951_AddNameColumnToFireTablesTable")]
+    partial class AddNameColumnToFireTablesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

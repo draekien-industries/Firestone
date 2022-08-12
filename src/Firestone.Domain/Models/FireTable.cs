@@ -4,6 +4,8 @@ using Constants;
 
 public class FireTable : DbEntity
 {
+    public string Name { get; set; } = string.Empty;
+
     public double YearlyInflationRate { get; set; }
 
     public double MonthlyInflationRate => YearlyInflationRate / FirestoneValues.MonthsPerYear;
@@ -26,6 +28,7 @@ public class FireTable : DbEntity
     public ICollection<AssetHolder> AssetHolders { get; set; } = new List<AssetHolder>();
 
     public static FireTable Initialise(
+        string name,
         double yearlyInflationRate,
         double yearlyNominalReturnRate,
         double retirementTargetBeforeInflation,
@@ -33,6 +36,7 @@ public class FireTable : DbEntity
     {
         return new FireTable
         {
+            Name = name,
             YearlyInflationRate = yearlyInflationRate,
             YearlyNominalReturnRate = yearlyNominalReturnRate,
             RetirementTargetBeforeInflation = retirementTargetBeforeInflation,

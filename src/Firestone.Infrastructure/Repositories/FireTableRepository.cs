@@ -55,6 +55,7 @@ public class FireTableRepository : IFireTableRepository
 
     /// <inheritdoc />
     public async Task<FireTable> AddAsync(
+        string name,
         double yearlyInflationRate,
         double yearlyNominalReturnRate,
         double retirementTarget,
@@ -62,6 +63,7 @@ public class FireTableRepository : IFireTableRepository
         CancellationToken cancellationToken)
     {
         FireTable table = FireTable.Initialise(
+            name,
             yearlyInflationRate,
             yearlyNominalReturnRate,
             retirementTarget,

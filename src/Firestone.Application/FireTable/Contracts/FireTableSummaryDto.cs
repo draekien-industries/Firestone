@@ -15,6 +15,11 @@ public class FireTableSummaryDto : IMapFrom<FireTable>
     public Guid Id { get; set; }
 
     /// <summary>
+    /// The name of the table.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
     /// The asset holders associated with the FIRE table.
     /// </summary>
     public IEnumerable<AssetHolderSummaryDto> AssetHolders { get; set; } = Array.Empty<AssetHolderSummaryDto>();

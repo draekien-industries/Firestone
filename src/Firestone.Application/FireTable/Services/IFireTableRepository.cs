@@ -12,6 +12,7 @@ public interface IFireTableRepository
         CancellationToken cancellationToken);
 
     Task<FireTable> AddAsync(
+        string name,
         double yearlyInflationRate,
         double yearlyNominalReturnRate,
         double retirementTarget,

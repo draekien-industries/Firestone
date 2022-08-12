@@ -9,6 +9,8 @@ using Services;
 /// </summary>
 public class AddFireTableCommand : IRequest<FireTableDto>
 {
+    public string Name { get; init; } = default!;
+
     /// <summary>
     /// The expected yearly inflation rate.
     /// </summary>
@@ -33,6 +35,7 @@ public class AddFireTableCommand : IRequest<FireTableDto>
     {
         public Validator()
         {
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(255);
             RuleFor(x => x.YearsUntilRetirement).GreaterThan(0);
             RuleFor(x => x.RetirementTarget).GreaterThan(0);
             RuleFor(x => x.YearlyInflationRate).GreaterThan(0);
@@ -55,6 +58,7 @@ public class AddFireTableCommand : IRequest<FireTableDto>
         public async Task<FireTableDto> Handle(AddFireTableCommand request, CancellationToken cancellationToken)
         {
             FireTable table = await _fireTableRepository.AddAsync(
+                request.Name,
                 request.YearlyInflationRate,
                 request.YearlyNominalReturnRate,
                 request.RetirementTarget,

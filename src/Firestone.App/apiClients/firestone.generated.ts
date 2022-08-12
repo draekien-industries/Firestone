@@ -828,6 +828,8 @@ export interface Links {
 export interface FireTableSummaryDto {
     /** The ID of the FIRE table. */
     id?: string;
+    /** The name of the table. */
+    name?: string;
     /** The asset holders associated with the FIRE table. */
     assetHolders?: AssetHolderSummaryDto[];
 }
@@ -844,6 +846,8 @@ export interface AssetHolderSummaryDto {
 export interface FireTableDto {
     /** The ID of the FIRE table */
     id?: string;
+    /** The name of the table. */
+    name?: string;
     /** The yearly inflation rate. Used to calculate various projections */
     yearlyInflationRate?: number;
     /** The monthly inflation rate. Used to calculate various projections. */
@@ -874,6 +878,7 @@ export interface LineItemDto {
 
 /** A command to create a new FIRE table. */
 export interface AddFireTableCommand {
+    name: string;
     /** The expected yearly inflation rate. */
     yearlyInflationRate?: number;
     /** The expected yearly nominal return rate. */

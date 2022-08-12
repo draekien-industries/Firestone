@@ -16,6 +16,11 @@ public class FireTableDto : IMapFrom<FireTable>
     public Guid Id { get; set; }
 
     /// <summary>
+    /// The name of the table.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
     /// The yearly inflation rate. Used to calculate various projections
     /// </summary>
     /// <example>0.025</example>

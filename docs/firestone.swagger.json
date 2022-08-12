@@ -981,6 +981,10 @@
             "description": "The ID of the FIRE table.",
             "format": "guid"
           },
+          "name": {
+            "type": "string",
+            "description": "The name of the table."
+          },
           "assetHolders": {
             "type": "array",
             "description": "The asset holders associated with the FIRE table.",
@@ -1015,6 +1019,10 @@
             "type": "string",
             "description": "The ID of the FIRE table",
             "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the table."
           },
           "yearlyInflationRate": {
             "type": "number",
@@ -1101,7 +1109,16 @@
         "type": "object",
         "description": "A command to create a new FIRE table.",
         "additionalProperties": false,
+        "required": [
+          "name"
+        ],
         "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "nullable": false
+          },
           "yearlyInflationRate": {
             "type": "number",
             "description": "The expected yearly inflation rate.",
