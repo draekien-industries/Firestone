@@ -32,6 +32,26 @@ public class GetTableQuery : IRequest<FireTableDto>
         {
             FireTable table = await _fireTableRepository.GetAsync(request.Id, cancellationToken);
 
+            foreach (LineItem lineItem in table.LineItems)
+            {
+                List<AssetHolder> assetHoldersWithoutEntry =
+                    table.AssetHolders.Where(ah => !lineItem.Assets.Select(a => a.AssetHolderId).Contains(ah.Id))
+                         .ToList();
+
+                if (!assetHoldersWithoutEntry.Any()) continue;
+
+                foreach (Assets emptyAssets in assetHoldersWithoutEntry.Select(
+                             ah => new Assets
+                             {
+                                 AssetHolderId = ah.Id,
+                                 LineItemId = lineItem.Id,
+                                 Amount = 0,
+                             }))
+                {
+                    lineItem.Assets.Add(emptyAssets);
+                }
+            }
+
             var result = _mapper.Map<FireTableDto>(table);
 
             return result;

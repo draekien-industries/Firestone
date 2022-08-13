@@ -1,10 +1,17 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FireGraphDto, FireTableDto } from "../../apiClients/firestone.generated";
 import { firestoneService } from "../../services/firestoneService";
+import { Line } from "react-chartjs-2";
+import { dropDate } from "../../utils/datetime.util";
 import styles from "../../styles/Home.module.css";
+import { CategoryScale, Chart, ChartData, Legend, LinearScale, LineElement, PointElement, ScatterDataPoint, Tooltip } from "chart.js";
+import { difference } from "../../utils/math.util";
+import { numberAsCurrency, stringOrNumberAsCurrency } from "../../utils/currency.util";
+
+Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const Table: NextPage = () => {
   const router = useRouter();
@@ -15,6 +22,8 @@ const Table: NextPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!tableid) return;
+
     const getTable = async () => {
       const table = await firestoneService.tables().get(tableid as string);
       const graph = await firestoneService.graphs().get(tableid as string);
@@ -27,6 +36,76 @@ const Table: NextPage = () => {
     getTable();
   }, [tableid]);
 
+  const lineData = useMemo(() => {
+    if (!graph) return;
+
+    const recordedAssetsDates = graph.recordedAssets!.map((a) => dropDate(a.date));
+    const projectedAssetsDates = graph.projectedAssets!.map((a) => dropDate(a.date));
+
+    const labels = recordedAssetsDates.concat(projectedAssetsDates);
+    const uniqueLables = labels.filter((value, index, self) => self.indexOf(value) === index);
+
+    const recordedAssets = graph.recordedAssets!.map((ra) => ra.amount ?? null);
+    const numberOfRecords = recordedAssets.length;
+    const projectedAssets = graph.projectedAssets!.map((pa) => pa.amount ?? null);
+    const projectedAssetsData = new Array(numberOfRecords).fill(null).concat(projectedAssets);
+    const retirementTarget = graph.adjustedTargets!.retirementTargets!.map((rt) => rt.amount ?? null);
+    const coastTarget = graph.adjustedTargets!.coastTargets!.map((ct) => ct.amount ?? null);
+    const minimumGrowthTarget = graph.adjustedTargets!.minimumGrowthTargets!.map((mgt) => mgt.amount ?? null);
+
+    const data: ChartData<"line", (number | ScatterDataPoint | null)[], unknown> = {
+      labels: uniqueLables,
+      datasets: [
+        {
+          label: "Recorded Assets",
+          data: recordedAssets,
+          borderColor: "rgb(75, 192, 192)",
+          pointBorderWidth: 0,
+          pointBorderColor: "rgb(75, 192, 192)",
+          tension: 0.1,
+        },
+        {
+          label: "Projected Assets",
+          data: projectedAssetsData,
+          borderColor: "rgb(75, 192, 192)",
+          borderDash: [5, 5],
+          pointBorderWidth: 0,
+          pointBorderColor: "rgb(75, 192, 192)",
+          tension: 0.1,
+        },
+        {
+          label: "Retirement Target",
+          data: retirementTarget,
+          borderColor: "rgb(75, 192, 2)",
+          pointBorderWidth: 0,
+          pointBorderColor: "rgb(75, 192, 2)",
+          tension: 0.1,
+        },
+        {
+          label: "Coast Target",
+          data: coastTarget,
+          borderColor: "rgb(192, 192, 192)",
+          pointBorderWidth: 0,
+          pointBorderColor: "rgb(192, 192, 192)",
+          tension: 0.1,
+        },
+        {
+          label: "Minimum Growth Target",
+          data: minimumGrowthTarget,
+          borderColor: "rgb(75, 192, 2)",
+          borderDash: [5, 5],
+          pointBorderWidth: 0,
+          pointBorderColor: "rgb(75, 192, 2)",
+          tension: 0.1,
+        },
+      ],
+    };
+
+    console.log(data);
+
+    return data;
+  }, [graph]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -36,9 +115,63 @@ const Table: NextPage = () => {
       </Head>
 
       <main>
-        <div>{tableid}</div>
-        <pre>{JSON.stringify(table, null, 2)}</pre>
-        <pre>{JSON.stringify(graph, null, 2)}</pre>
+        <h1>{table?.name}</h1>
+        <section style={{ width: "80%" }}>
+          {lineData && (
+            <details style={{ borderRadius: "2rem", boxShadow: "rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px" }}>
+              <summary>Graph of {table?.name}</summary>
+              <Line
+                data={lineData}
+                options={{
+                  responsive: true,
+                  scales: { y: { ticks: { callback: (val) => stringOrNumberAsCurrency(val) } } },
+                  plugins: {
+                    legend: { position: "right" },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => {
+                          var label = context.dataset.label || "";
+
+                          if (label) {
+                            label += ": ";
+                          }
+                          if (context.parsed.y !== null) {
+                            label += numberAsCurrency(context.parsed.y);
+                          }
+                          return label;
+                        },
+                      },
+                    },
+                  },
+                }}
+              />
+            </details>
+          )}
+        </section>
+        <section>
+          <table style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <td>Month</td>
+              {table?.assetHolders?.map((ah, index) => (
+                <td key={index}>{ah.name}</td>
+              ))}
+              <td>Total</td>
+              <td>Delta</td>
+            </thead>
+            <tbody>
+              {table?.lineItems?.map((li, index) => (
+                <tr key={index}>
+                  <td>{dropDate(li.date)}</td>
+                  {li.assets?.map((a, index) => (
+                    <td key={index}>{a.amount}</td>
+                  ))}
+                  <td>{li.assetsTotal}</td>
+                  <td>{difference(li.assetsTotal, table?.lineItems?.at(index - 1)?.assetsTotal)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
       </main>
     </div>
   );

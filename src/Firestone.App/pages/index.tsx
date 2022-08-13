@@ -39,7 +39,7 @@ const Home: NextPage = () => {
             </th>
             {tables.map((table, index) => (
               <tr key={index}>
-                <Link href={{ pathname: "/tables/[tableId]", query: { tableId: table.id } }}>
+                <Link href={{ pathname: "/tables/[tableid]", query: { tableid: table.id } }}>
                   <a>
                     <td>
                       {table.assetHolders?.map((assetHolder, index) => (
