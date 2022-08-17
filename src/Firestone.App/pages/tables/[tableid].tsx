@@ -17,13 +17,13 @@ import {
   ScatterDataPoint,
   Tooltip,
 } from 'chart.js';
-import { difference } from '../../utils/math.util';
 import {
   numberAsCurrency,
   stringOrNumberAsCurrency,
 } from '../../utils/currency.util';
 import { AddRecordFormFields } from '../../components/add-record-form-fields/addRecordFormFields';
-import { FormModal } from '../../components';
+import { FormModal, Table } from '../../components';
+import { useFireTable } from '../../hooks/useFireTable';
 
 Chart.register(
   CategoryScale,
@@ -34,23 +34,20 @@ Chart.register(
   Legend
 );
 
-const Table: NextPage = () => {
+const TablePage: NextPage = () => {
   const router = useRouter();
   const { tableid } = router.query;
-
-  const [table, setTable] = useState<FireTableDto>();
   const [graph, setGraph] = useState<FireGraphDto>();
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const fireTable = useFireTable({ tableId: tableid as string });
 
   useEffect(() => {
     if (!tableid) return;
 
     const getTable = async () => {
-      const table = await firestoneService.tables().get(tableid as string);
       const graph = await firestoneService.graphs().get(tableid as string);
 
-      setTable(table);
       setGraph(graph);
       setLoading(false);
     };
@@ -158,12 +155,12 @@ const Table: NextPage = () => {
       </Head>
 
       <div className="container mx-auto">
-        <h1 className="text-xl text-slate-200">{table?.name}</h1>
+        <h1 className="text-xl text-slate-200">{fireTable?.title}</h1>
         <section className="my-8">
           {lineData && (
             <details className="container p-4 shadow-xl rounded-lg bg-slate-800 text-slate-300">
               <summary className="text-lg cursor-pointer">
-                Graph of {table?.name}
+                Graph of {fireTable?.title}
               </summary>
               <div className="m-4">
                 <Line
@@ -210,41 +207,7 @@ const Table: NextPage = () => {
         </section>
         <section className="my-8">
           <div className="container p-4 shadow-xl rounded-lg bg-slate-800 text-slate-300">
-            <table className="table table-auto border-collapse border-spacing-0 w-full">
-              <thead className="table-header-group border-b-4 border-b-slate-400 font-semibold">
-                <td className="table-cell py-2">Month</td>
-                {table?.assetHolders?.map((ah, index) => (
-                  <td key={index}>{ah.name}</td>
-                ))}
-                <td className="table-cell">Total</td>
-                <td className="table-cell">Delta</td>
-              </thead>
-              <tbody className="table-row-group">
-                {table?.lineItems?.map((li, index) => (
-                  <tr
-                    key={index}
-                    className="table-row border-b-2 border-b-slate-600">
-                    <td className="table-cell py-2">{dropDate(li.date)}</td>
-                    {li.assets?.map((a, index) => (
-                      <td key={index} className="table-cell">
-                        {numberAsCurrency(a.amount)}
-                      </td>
-                    ))}
-                    <td className="table-cell">
-                      {numberAsCurrency(li.assetsTotal)}
-                    </td>
-                    <td className="table-cell">
-                      {numberAsCurrency(
-                        difference(
-                          li.assetsTotal,
-                          table?.lineItems?.at(index - 1)?.assetsTotal
-                        )
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <Table {...fireTable} />
           </div>
           <div className="container flex justify-end my-4">
             <button
@@ -269,8 +232,8 @@ const Table: NextPage = () => {
             );
           }}>
           <AddRecordFormFields
-            assetHolders={table?.assetHolders ?? []}
-            mostRecentLineItem={table?.lineItems?.at(-1) ?? {}}
+            assetHolders={fireTable?.data?.assetHolders ?? []}
+            mostRecentLineItem={fireTable?.data?.lineItems?.at(-1) ?? {}}
           />
         </FormModal>
       </div>
@@ -278,4 +241,4 @@ const Table: NextPage = () => {
   );
 };
 
-export default Table;
+export default TablePage;

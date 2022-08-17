@@ -51,7 +51,7 @@ export const FormModal: FC<FormModalProps> = ({
             </div>
             <div
               id="modal-footer"
-              className="flex items-center justify-start flex-row-reverse p-6 border-t borde-solid border-slate-700 rounded-b">
+              className="flex items-center justify-start flex-row-reverse p-6 border-t border-solid border-slate-700 rounded-b">
               <button
                 className="bg-emerald-600 text-slate-200 hover:bg-emerald-500 font-bold uppercase text-sm px-6 py-1 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                 type="submit">
